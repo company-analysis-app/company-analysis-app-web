@@ -77,8 +77,8 @@ src/
 
 1. **저장소 클론**
 ```bash
-git clone <repository-url>
-cd company-analysis-app-web
+$ git clone https://github.com/HanbinSeong/company-analysis-app-web.git
+$ cd company-analysis-app-web
 ```
 
 2. **의존성 설치**
