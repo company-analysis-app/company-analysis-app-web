@@ -1,44 +1,38 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import { categories } from "../data/users"
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate()
-  const { user, updatePreferences } = useAuth()
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(user?.preferences || [])
-  const [isSaving, setIsSaving] = useState(false)
+  const { user, updatePreferences, addToFavorites, removeFromFavorites } = useAuth();
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(user?.preferences || []);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleCategoryToggle = (category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category],
-    )
-  }
+    setSelectedCategories(prev => prev.includes(category)
+      ? prev.filter(c => c !== category) : [...prev, category]);
+  };
 
   const handleSave = async () => {
-    setIsSaving(true)
+    setIsSaving(true);
     try {
-      // API 연동필요 - PUT /user/preferences
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // 저장 시뮬레이션
-      updatePreferences(selectedCategories)
-      alert("선호 카테고리가 저장되었습니다!")
-    } catch (error) {
-      alert("저장에 실패했습니다. 다시 시도해주세요.")
+      await updatePreferences(selectedCategories);
+      alert("선호 카테고리가 저장되었습니다!");
+    } catch {
+      alert("저장에 실패했습니다. 다시 시도해주세요.");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleBack = () => {
     navigate(-1) // 이전 페이지로 이동
   }
 
-  if (!user) {
-    return <div>로그인이 필요합니다.</div>
-  }
+  if (!user) return <div>로그인이 필요합니다.</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">

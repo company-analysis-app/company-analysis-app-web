@@ -1,11 +1,13 @@
 "use client"
 
-import type React from "react"
-import { createContext, useContext, useState, type ReactNode } from "react"
-import { type User, dummyUser } from "../data/users"
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import type { User } from "../data/users";
+import { fetchMe, updateUserPreferences, addFavorite, removeFavorite } from "../data/users";
 
 interface AuthContextType {
     user: User | null
+    loading: boolean
     login: (provider: "google" | "kakao") => Promise<void>
     logout: () => void
     updatePreferences: (preferences: string[]) => void
@@ -13,76 +15,85 @@ interface AuthContextType {
     removeFromFavorites: (companyId: number) => void
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const API_URL = process.env.REACT_APP_DBAPI_URL as string;
 
-export const useAuth = () => {
-    const context = useContext(AuthContext)
-    if (context === undefined) {
-        throw new Error("useAuth must be used within an AuthProvider")
-    }
-    return context
+export function useAuth(): AuthContextType {
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error("AuthProvider 내부에서만 사용하세요");
+    return ctx;
 }
 
-interface AuthProviderProps {
-    children: ReactNode
-}
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(dummyUser) // 개발용으로 기본 로그인 상태
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+        const finish = () => setLoading(false);
+
+        if (token) {
+            localStorage.setItem("token", token);
+            window.history.replaceState({}, "", window.location.pathname);
+            fetchMe(token)
+                .then(setUser)
+                .catch(() => localStorage.removeItem("token"))
+                .finally(() => {
+                    finish();
+                    navigate("/dashboard", { replace: true });
+                });
+        } else {
+            const stored = localStorage.getItem("token");
+            if (stored) {
+                fetchMe(stored)
+                    .then(setUser)
+                    .catch(() => localStorage.removeItem("token"))
+                    .finally(finish);
+            } else {
+                finish();
+            }
+        }
+    }, [navigate]);
 
     const login = async (provider: "google" | "kakao") => {
-        // OAuth 로그인 처리 - API 연동필요
-        console.log(`${provider} 로그인 시도`)
-
-        try {
-            // 실제로는 백엔드 OAuth 엔드포인트 호출
-            // const response = await fetch(`/auth/login/${provider}`);
-
-            // 더미 로그인 처리
-            setUser(dummyUser)
-        } catch (error) {
-            console.error("로그인 실패:", error)
-        }
-    }
+        window.location.href = `${API_URL}/auth/login/${provider}`;
+    };
 
     const logout = () => {
-        // 로그아웃 처리 - API 연동필요
-        setUser(null)
-    }
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login", { replace: true });
+    };
 
-    const updatePreferences = (preferences: string[]) => {
-        if (user) {
-            // DB연결 필요 - PUT /user/preferences
-            setUser({ ...user, preferences })
-        }
-    }
+    const updatePreferences = async (prefs: string[]) => {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("로그인이 필요합니다");
+        const updated = await updateUserPreferences(token, prefs);
+        setUser(updated);
+    };
 
-    const addToFavorites = (companyId: number) => {
-        if (user && !user.favorites.includes(companyId)) {
-            // DB연결 필요 - POST /favorites
-            setUser({ ...user, favorites: [...user.favorites, companyId] })
-        }
-    }
+    const addToFavorites = async (companyId: number) => {
+        if (!user) return;
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("로그인이 필요합니다");
+        const updated = await addFavorite(token, companyId);
+        setUser(updated);
+    };
 
-    const removeFromFavorites = (companyId: number) => {
-        if (user) {
-            // DB연결 필요 - DELETE /favorites/{companyId}
-            setUser({ ...user, favorites: user.favorites.filter((id) => id !== companyId) })
-        }
-    }
+    const removeFromFavorites = async (companyId: number) => {
+        if (!user) return;
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("로그인이 필요합니다");
+        const updated = await removeFavorite(token, companyId);
+        setUser(updated);
+    };
+
 
     return (
-        <AuthContext.Provider
-            value={{
-                user,
-                login,
-                logout,
-                updatePreferences,
-                addToFavorites,
-                removeFromFavorites,
-            }}
-        >
+        <AuthContext.Provider value={{ user, login, logout, updatePreferences, addToFavorites, removeFromFavorites, loading }}>
             {children}
         </AuthContext.Provider>
-    )
-}
+    );
+};

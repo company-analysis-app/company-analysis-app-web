@@ -2,29 +2,12 @@
 
 import type React from "react"
 import { useAuth } from "../contexts/AuthContext"
-import { useNavigate } from "react-router-dom"
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth()
-  const navigate = useNavigate()
 
-  const handleGoogleLogin = async () => {
-    try {
-      await login("google")
-      navigate("/dashboard")
-    } catch (error) {
-      console.error("로그인 실패:", error)
-    }
-  }
-
-  const handleKakaoLogin = async () => {
-    try {
-      await login("kakao")
-      navigate("/dashboard")
-    } catch (error) {
-      console.error("로그인 실패:", error)
-    }
-  }
+  const handleGoogleLogin = () => login("google");
+  const handleKakaoLogin = () => login("kakao");
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
