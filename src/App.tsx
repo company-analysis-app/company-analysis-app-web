@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage"
 import DashboardPage from "./pages/DashboardPage"
 import CompanyDetailPage from "./pages/CompanyDetailPage"
 import ProfilePage from "./pages/ProfilePage"
+import CompanySearchPage from "./pages/CompanySearchPage"
 import NavBar from "./components/Navbar"
 
 // 보호된 라우트 컴포넌트
@@ -45,6 +46,8 @@ const AppContent: React.FC = () => {
 
         {/* 보호된 라우트들 */}
         <Route path="/" element={<ProtectedRoute> <DashboardPage /> </ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute> <DashboardPage /> </ProtectedRoute>} />
+        <Route path="/search" element={<ProtectedRoute> <CompanySearchPage /> </ProtectedRoute>} />
         <Route path="/company/:companyName" element={<ProtectedRoute> <CompanyDetailPage /> </ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute> <ProfilePage /> </ProtectedRoute>} />
 
