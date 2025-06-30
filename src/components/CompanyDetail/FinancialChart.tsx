@@ -1,5 +1,5 @@
 import type React from "react"
-import type { FinancialData } from "../data/companies"
+import type { FinancialData } from "../../data/companies"
 
 interface FinancialChartProps {
   data: FinancialData[]
