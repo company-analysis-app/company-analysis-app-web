@@ -26,29 +26,6 @@ const NavBar: React.FC = () => {
             <Link to="/" className="text-xl font-bold text-gray-900 hover:text-blue-600">
               기업 분석 플랫폼
             </Link>
-
-            {/* 네비게이션 메뉴 */}
-            <div className="hidden md:flex space-x-6">
-              <Link
-                to="/dashboard"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive("/dashboard") || isActive("/")
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  }`}
-              >
-                대시보드
-              </Link>
-
-              <Link
-                to="/search"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive("/search")
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  }`}
-              >
-                기업 검색
-              </Link>
-            </div>
           </div>
 
           {user && (
