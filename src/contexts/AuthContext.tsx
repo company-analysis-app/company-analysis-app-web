@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 .catch(() => localStorage.removeItem("token"))
                 .finally(() => {
                     finish();
-                    navigate("/dashboard", { replace: true });
+                    navigate("/", { replace: true });
                 });
         } else {
             const stored = localStorage.getItem("token");
