@@ -11,6 +11,7 @@ import AISummary from "../components/CompanyDetail/AISummary" // component로 �
 import FinancialChart from "../components/CompanyDetail/FinancialChart" // component로 관리
 import NewsList from "../components/CompanyDetail/NewsList" // component로 관리
 
+
 const CompanyDetailPage: React.FC = () => {
     const { companyName } = useParams<{ companyName: string }>()
     const { company, companyDetail, isLoading, error } = useCompanyDetail(companyName) // hook으로 관리
@@ -40,7 +41,7 @@ const CompanyDetailPage: React.FC = () => {
 
                     {/* 관련 뉴스 */}
                     <div>
-                        <NewsList news={companyDetail.news} />
+                        {companyName && <NewsList query={companyName} />}
                     </div>
                 </div>
             </div>
