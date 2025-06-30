@@ -1,5 +1,5 @@
 import type React from "react"
-import type { NewsItem } from "../data/companies"
+import type { NewsItem } from "../../data/companies"
 
 interface NewsListProps {
   news: NewsItem[]
