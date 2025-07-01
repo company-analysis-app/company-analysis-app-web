@@ -4,10 +4,6 @@ export interface Company {
     category: string
     summary: string
     logo?: string
-    address?: string
-    corpCls?: string
-    foundedDate?: string
-    homepage?: string
 }
 
 export interface FinancialData {
