@@ -46,11 +46,7 @@ export function useCompanyDetail(
                     `http://127.0.0.1:8000/darts/getInfos?code=${corpCode}`
                 );
                 const info = infoRes.data;
-
-                const mapRes = await axios.get<string>(
-                    `http://127.0.0.1:8000/darts/mapping?code=${parseInt(info.induty_code)}`
-                );
-                const industry = mapRes.data;
+                const industry = info.induty_name;
 
                 const extraInfo: ExtraInfo = {
                     address: info.adres,
