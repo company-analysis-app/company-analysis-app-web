@@ -28,7 +28,7 @@ const NewsList: React.FC<NewsListProps> = ({ query }) => {
     }
     setLoading(true);
     setError(null);
-    fetch(`/naver/news/all?company=${encodeURIComponent(query)}`)
+    fetch(`http://localhost:8000/naver/news/all?company=${encodeURIComponent(query)}`)
       .then(res => {
         if (!res.ok) throw new Error('뉴스 정보를 가져오지 못했습니다.');
         return res.json();
@@ -82,6 +82,7 @@ const NewsList: React.FC<NewsListProps> = ({ query }) => {
                   <span>{item.source}</span>
                   <span>{new Date(item.pubDate).toLocaleDateString("ko-KR")}</span>
                 </div>
+                <div className="text-xs text-blue-500 break-all mt-1">{item.link}</div>
               </a>
             </div>
           ))}
