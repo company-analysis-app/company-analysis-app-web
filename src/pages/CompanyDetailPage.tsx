@@ -36,7 +36,7 @@ const CompanyDetailPage: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* 재무 정보 차트 */}
                     <div>
-                        <FinancialChart data={companyDetail.financialData} />
+                        <FinancialChart name={companyName!} />
                     </div>
 
                     {/* 관련 뉴스 */}
