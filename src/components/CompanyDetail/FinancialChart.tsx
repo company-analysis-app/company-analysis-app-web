@@ -19,13 +19,11 @@ const FinancialChart: React.FC<FinancialChartProps> = ({ name }) => {
 
         const corpCodeRes = await axios.get(`http://127.0.0.1:8000/darts?name=${name}`)
         const corpCode = corpCodeRes.data
-        console.log(corpCode)
 
         if (!corpCode) throw new Error("공시번호를 찾을 수 없습니다")
 
         const finRes = await axios.get(`http://127.0.0.1:8000/darts/getValues?code=${corpCode}`)
         const finalData = finRes.data
-        console.log(finalData)
 
         const parsedData: FinancialData[] = Object.entries(finalData).map(
           ([year, values]: [string, any]) => ({
