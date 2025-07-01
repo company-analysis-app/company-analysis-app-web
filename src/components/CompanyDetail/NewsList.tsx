@@ -15,6 +15,16 @@ const categoryKeywords: { [key: string]: string[] } = {
   IT: ["IT", "기술", "인공지능", "AI", "소프트웨어", "개발", "R&D", "특허", "혁신", "디지털", "ICT", "테크", "클라우드"]
 };
 
+// URL에서 도메인만 추출하는 함수
+function getDomain(url: string) {
+  try {
+    const { hostname } = new URL(url);
+    return hostname.replace("www.", "");
+  } catch {
+    return url; // URL 파싱 실패 시 원본 반환
+  }
+}
+
 const NewsList: React.FC<NewsListProps> = ({ query }) => {
   const [allNewsByCategory, setAllNewsByCategory] = useState<{ [key: string]: NewsItem[] }>({});
   const [selectedCategory, setSelectedCategory] = useState<string>("전체");
@@ -68,21 +78,23 @@ const NewsList: React.FC<NewsListProps> = ({ query }) => {
       ) : error ? (
         <p className="text-red-500">오류: {error}</p>
       ) : news.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {news.map((item) => (
-            <div key={item.id} className="border-b border-gray-100 pb-4 last:border-b-0">
+            <div key={item.id} className="border-b border-gray-100 pb-2 last:border-b-0">
               <a
                 href={item.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block hover:bg-gray-50 p-2 rounded transition-colors"
               >
-                <h4 className="font-medium text-gray-900 hover:text-blue-600 line-clamp-2 mb-2">{item.title}</h4>
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>{item.source}</span>
-                  <span>{new Date(item.pubDate).toLocaleDateString("ko-KR")}</span>
+                <h4 className="font-medium text-gray-900 hover:text-blue-600 line-clamp-2 mb-1">{item.title}</h4>
+                <div className="flex items-center text-sm text-gray-500 justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="whitespace-nowrap">{item.source}</span>
+                    <span className="whitespace-nowrap truncate max-w-xs text-blue-500">{getDomain(item.link)}</span>
+                  </div>
+                  <span className="whitespace-nowrap">{new Date(item.pubDate).toLocaleDateString("ko-KR")}</span>
                 </div>
-                <div className="text-xs text-blue-500 break-all mt-1">{item.link}</div>
               </a>
             </div>
           ))}
