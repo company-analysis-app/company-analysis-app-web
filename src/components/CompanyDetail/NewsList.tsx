@@ -18,6 +18,7 @@ function getDomain(url: string) {
   }
 }
 
+
 const NewsList: React.FC<NewsListProps> = ({ news }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("전체");
   const items = news[selectedCategory] || [];
