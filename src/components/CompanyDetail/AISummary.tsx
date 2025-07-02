@@ -18,7 +18,7 @@ const AISummary: React.FC<CompanyInfoProps> = ({ companyDetail }) => {
                 <p className="text-gray-700 leading-relaxed text-lg">{companyDetail?.aiSummary}</p>
             </div>
             <div className="mt-4 text-sm text-gray-500">
-                * Groq AI를 통해 생성된 요약입니다. 투자 결정의 참고용으로만 활용하세요.
+                * Groq AI를 통해 생성된 요약입니다. 참고용으로만 활용하세요.
             </div>
         </div>
     );

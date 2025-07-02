@@ -38,6 +38,14 @@ export interface CompanyDetail {
     news: Record<string, NewsItem[]>;
 }
 
+export interface SummaryOut {
+    id: number;
+    company_name: string;
+    summary_text: string;
+    created_at: string;    // ISO string
+    updated_at: string;    // ISO string
+}
+
 
 // 더미 기업 데이터
 export const dummyCompanies: Company[] = [

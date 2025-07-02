@@ -8,7 +8,10 @@ import {
     FinancialData,
     NewsItem,
     ExtraInfo,
+    SummaryOut
 } from "../data/companies";
+
+const API_BASE_URL = process.env.REACT_APP_DBAPI_URL || "http://localhost:8000";
 
 export function useCompanyDetail(
     companyName?: string
@@ -27,10 +30,9 @@ export function useCompanyDetail(
         if (!companyName) return;
 
         const fetchAll = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
-                setIsLoading(true);
-                setError(null);
-
                 // 1) DART 코드 가져오기 -> 존재하지 않으면 오류 발생시킴.
                 const infoRes = await axios.get<any>(
                     `http://127.0.0.1:8000/darts/getInfos?name=${encodeURIComponent(companyName)}`
@@ -63,13 +65,9 @@ export function useCompanyDetail(
                 };
                 
 
-                // 3) AI 요약 (더미)
-                const detailFromDummy = ({} as Record<string, CompanyDetail>)[companyName];
-                const aiSummary = detailFromDummy?.aiSummary || '';
-
-                // 4) 재무 데이터
+                // 3) 재무 데이터
                 const finRes = await axios.get<Record<string, any>>(
-                    `http://127.0.0.1:8000/darts/getValues?code=${corpCode}`
+                    `${API_BASE_URL}/darts/getValues?code=${corpCode}`
                 );
                 const rawFin = finRes.data;
                 const financialData: FinancialData[] = Object.entries(rawFin).map(
@@ -81,11 +79,30 @@ export function useCompanyDetail(
                     })
                 );
 
-                // 5) 뉴스 카테고리별 전체 호출
+                // 4) 뉴스 카테고리별 전체 호출
                 const newsRes = await axios.get<Record<string, NewsItem[]>>(
-                    `http://127.0.0.1:8000/naver/news/all?company=${encodeURIComponent(found.name)}`
+                    `${API_BASE_URL}/naver/news/all?company=${encodeURIComponent(found.name)}`
                 );
                 const newsMap = newsRes.data;
+
+                // 5) AI 요약
+                const formattedNews: Record<string, NewsItem[]> = {};
+                Object.entries(newsMap).forEach(([category, articles]) => {
+                    formattedNews[category] = articles.map((a) => ({
+                        ...a,
+                        pubDate: new Date(a.pubDate).toISOString(),
+                    }));
+                });
+                const summaryReqBody = {
+                    company_name: found.name,
+                    financial: financialData,
+                    news: formattedNews
+                };
+                const aiSummaryRes = await axios.post<SummaryOut>(
+                    `${API_BASE_URL}/summary`,
+                    summaryReqBody
+                );
+                const aiSummary = aiSummaryRes.data.summary_text;
 
                 setCompanyDetail({
                     company: found,
@@ -94,13 +111,13 @@ export function useCompanyDetail(
                     financialData,
                     news: newsMap,
                 });
+
             } catch (err: any) {
-                setError(err.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+                setError(err.response?.data?.detail || err.message);
             } finally {
                 setIsLoading(false);
             }
         };
-
         fetchAll();
     }, [companyName]);
 
