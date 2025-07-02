@@ -32,19 +32,16 @@ export function useCompanyDetail(
                 setError(null);
 
                 // 1) DART 코드 가져오기 -> 존재하지 않으면 오류 발생시킴.
-                const codeRes = await axios.get<string>(
-                    `http://127.0.0.1:8000/darts?name=${encodeURIComponent(companyName)}`
-                );
-                const corpCode = codeRes.data;
-                if (typeof corpCode === "object" && "message" in corpCode) {
-                    throw new Error(corpCode["message"]);
-                }
-                
-                // 2) 회사 기본정보 가져오고 company 값 변경, extraInfo 변수 생성
                 const infoRes = await axios.get<any>(
-                    `http://127.0.0.1:8000/darts/getInfos?code=${corpCode}`
+                    `http://127.0.0.1:8000/darts/getInfos?name=${encodeURIComponent(companyName)}`
                 );
                 const info = infoRes.data;
+                const corpCode = info.corp_code;
+                
+                if (typeof info === "object" && "message" in info) {
+                    throw new Error(info["message"]);
+                }
+                
                 const industry = info.induty_name;
                 const found: Company = {
                     id: info.corp_code,
