@@ -30,10 +30,9 @@ export function useCompanyDetail(
         if (!companyName) return;
 
         const fetchAll = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
-                setIsLoading(true);
-                setError(null);
-
                 // 1) 기본 회사 정보
                 const found = dummyCompanies.find((c) => c.name === companyName);
                 if (!found) throw new Error("해당 기업을 찾을 수 없습니다.");
@@ -61,8 +60,6 @@ export function useCompanyDetail(
                     industry,
                 };
 
-
-
                 // 3) 재무 데이터
                 const finRes = await axios.get<Record<string, any>>(
                     `${API_BASE_URL}/darts/getValues?code=${corpCode}`
@@ -83,7 +80,6 @@ export function useCompanyDetail(
                 );
                 const newsMap = newsRes.data;
 
-
                 // 5) AI 요약
                 const formattedNews: Record<string, NewsItem[]> = {};
                 Object.entries(newsMap).forEach(([category, articles]) => {
@@ -102,8 +98,6 @@ export function useCompanyDetail(
                     summaryReqBody
                 );
                 const aiSummary = aiSummaryRes.data.summary_text;
-                // const detailFromDummy = ({} as Record<string, CompanyDetail>)[companyName];
-                // const aiSummary = detailFromDummy?.aiSummary || '';
 
                 setCompanyDetail({
                     company: found,
@@ -119,7 +113,6 @@ export function useCompanyDetail(
                 setIsLoading(false);
             }
         };
-
         fetchAll();
     }, [companyName]);
 
