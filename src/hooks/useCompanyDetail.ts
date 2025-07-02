@@ -85,11 +85,20 @@ export function useCompanyDetail(
                 const newsMap = newsRes.data;
                 console.log("뉴스 데이터:", newsMap);
 
+
+
                 // 5) AI 요약
+                const formattedNews: Record<string, NewsItem[]> = {};
+                Object.entries(newsMap).forEach(([category, articles]) => {
+                    formattedNews[category] = articles.map((a) => ({
+                        ...a,
+                        pubDate: new Date(a.pubDate).toISOString(),
+                    }));
+                });
                 const summaryReqBody = {
-                    company_name: encodeURIComponent(found.name),
+                    company_name: found.name,
                     financial: financialData,
-                    news: newsMap
+                    news: formattedNews
                 };
                 const aiSummaryRes = await axios.post<SummaryOut>(
                     `${API_BASE_URL}/summary`,
