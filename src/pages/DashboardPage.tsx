@@ -16,7 +16,7 @@ const DashboardPage: React.FC = () => {
     const { user } = useAuth()
     const navigate = useNavigate()
     const [recommendations, setRecommendations] = useState<Company[]>([])
-    const [bestCompanies, setBestCompany] = useState<Company[]>([])
+    const [bestCompanies, setBestCompanies] = useState<Company[]>([])
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
@@ -26,16 +26,19 @@ const DashboardPage: React.FC = () => {
             }
 
             try {
-                const res = await axios.get<any>(`http://127.0.0.1:8000/dartsSearch/bestCompanies`)
+                const res = await axios.get<any>(`${API_BASE_URL}/dartsSearch/bestCompanies`)
                 const results = res.data;
 
-                const companyData: Company[] = results.map((item: any) => ({
-                    id: Number(item.corp_code),
-                    name: item.corp_name,
-                    category: "더미데이터입니다",
-                    summary: "더미데이터입니다",
-                }));
-                setBestCompany(companyData);
+                const companyData: Company[] = results
+                    .filter((item: any) => item.favorite_count > 0) 
+                    .map((item: any) => ({
+                        id: Number(item.corp_code),
+                        name: item.corp_name,
+                        category: "더미데이터입니다",
+                        summary: "더미데이터입니다",
+                        favoriteCount: item.favorite_count,
+                    }));
+                setBestCompanies(companyData);
             } catch (error) {
                 console.error("인기 기업 가져오기 실패:", error);
             }
@@ -141,6 +144,7 @@ const DashboardPage: React.FC = () => {
                     <CompanyList
                         companies={bestCompanies}
                         onCompanyClick={handleCompanyClick}
+                        showFavoriteCount={true}
                     />
                 </div>
             </div>

@@ -5,6 +5,7 @@ export interface Company {
     category: string;
     summary: string;
     logo?: string;
+    favoriteCount?: number;
 }
 
 export interface FinancialData {

@@ -9,9 +9,16 @@ interface CompanyListProps {
     onCompanyClick: (company: Company) => void
     title?: string
     showFavoriteButton?: boolean
+    showFavoriteCount?: boolean
 }
 
-const CompanyList: React.FC<CompanyListProps> = ({ companies, onCompanyClick, title, showFavoriteButton = true }) => {
+const CompanyList: React.FC<CompanyListProps> = ({ 
+    companies, 
+    onCompanyClick, 
+    title, 
+    showFavoriteButton = true,
+    showFavoriteCount = false, 
+}) => {
     if (companies.length === 0) {
         return (
             <div className="text-center py-12">
@@ -31,6 +38,7 @@ const CompanyList: React.FC<CompanyListProps> = ({ companies, onCompanyClick, ti
                         company={company}
                         onClick={onCompanyClick}
                         showFavoriteButton={showFavoriteButton}
+                        showFavoriteCount={showFavoriteCount}
                     />
                 ))}
             </div>
