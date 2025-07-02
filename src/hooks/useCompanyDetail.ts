@@ -108,7 +108,7 @@ export function useCompanyDetail(
                 });
 
             } catch (err: any) {
-                setError(err.message || '데이터를 불러오는 중 오류가 발생했습니다.');
+                setError(err.response?.data?.detail || err.message);
             } finally {
                 setIsLoading(false);
             }
