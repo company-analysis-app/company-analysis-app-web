@@ -31,22 +31,29 @@ export function useCompanyDetail(
                 setIsLoading(true);
                 setError(null);
 
-                // 1) 기본 회사 정보
-                const found = dummyCompanies.find((c) => c.name === companyName);
-                if (!found) throw new Error("해당 기업을 찾을 수 없습니다.");
-                setCompany(found);
-
-                // 2) DART 공시 추가 정보
+                // 1) DART 코드 가져오기 -> 존재하지 않으면 오류 발생시킴.
                 const codeRes = await axios.get<string>(
-                    `http://127.0.0.1:8000/darts?name=${encodeURIComponent(found.name)}`
+                    `http://127.0.0.1:8000/darts?name=${encodeURIComponent(companyName)}`
                 );
                 const corpCode = codeRes.data;
-
+                if (typeof corpCode === "object" && "message" in corpCode) {
+                    throw new Error(corpCode["message"]);
+                }
+                
+                // 2) 회사 기본정보 가져오고 company 값 변경, extraInfo 변수 생성
                 const infoRes = await axios.get<any>(
                     `http://127.0.0.1:8000/darts/getInfos?code=${corpCode}`
                 );
                 const info = infoRes.data;
                 const industry = info.induty_name;
+                const found: Company = {
+                    id: info.corp_code,
+                    name: info.corp_name,
+                    category: "더미데이터입니다",
+                    summary: "더미데이터입니다",
+                };
+                setCompany(found);
+                
 
                 const extraInfo: ExtraInfo = {
                     address: info.adres,
@@ -57,6 +64,7 @@ export function useCompanyDetail(
                         : `https://${info.hm_url}`,
                     industry,
                 };
+                
 
                 // 3) AI 요약 (더미)
                 const detailFromDummy = ({} as Record<string, CompanyDetail>)[companyName];
