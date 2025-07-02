@@ -7,18 +7,41 @@ import { useAuth } from "../contexts/AuthContext"
 import { type Company, recommendationData } from "../data/companies"
 import SearchBar from "../components/SearchBar"
 import CompanyList from "../components/CompanyList"
+import axios from "axios"
+
+
+const API_BASE_URL = process.env.REACT_APP_DBAPI_URL || "http://localhost:8000";
 
 const DashboardPage: React.FC = () => {
     const { user } = useAuth()
     const navigate = useNavigate()
     const [recommendations, setRecommendations] = useState<Company[]>([])
+    const [bestCompanies, setBestCompany] = useState<Company[]>([])
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
-        if (user && user.preferences.length > 0) {
-            // API 연동필요 - GET /recommendations
-            generateRecommendations()
-        }
+        const fetchData = async () => {
+            if (user && user.preferences.length > 0) {
+                generateRecommendations()
+            }
+
+            try {
+                const res = await axios.get<any>(`http://127.0.0.1:8000/dartsSearch/bestCompanies`)
+                const results = res.data;
+
+                const companyData: Company[] = results.map((item: any) => ({
+                    id: Number(item.corp_code),
+                    name: item.corp_name,
+                    category: "더미데이터입니다",
+                    summary: "더미데이터입니다",
+                }));
+                setBestCompany(companyData);
+            } catch (error) {
+                console.error("인기 기업 가져오기 실패:", error);
+            }
+        };
+
+        fetchData();
     }, [user])
 
     const generateRecommendations = () => {
@@ -116,11 +139,7 @@ const DashboardPage: React.FC = () => {
                 <div className="mt-16">
                     <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">인기 기업</h2>
                     <CompanyList
-                        companies={[
-                            { id: 1, name: "삼성전자", category: "반도체", summary: "글로벌 반도체 및 전자제품 제조업체" },
-                            { id: 2, name: "현대자동차", category: "자동차", summary: "국내 최대 자동차 제조업체" },
-                            { id: 3, name: "네이버", category: "AI", summary: "국내 대표 IT 플랫폼 기업" },
-                        ]}
+                        companies={bestCompanies}
                         onCompanyClick={handleCompanyClick}
                     />
                 </div>
