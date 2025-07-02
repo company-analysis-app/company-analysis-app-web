@@ -111,7 +111,7 @@ const CompanySearchPage: React.FC = () => {
                         <div className="bg-white rounded-lg shadow-md p-8">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">빠른 검색</h3>
                             <div className="flex flex-wrap gap-2">
-                                {["삼성전자", "현대자동차", "네이버", "카카오", "SK하이닉스"].map((keyword) => (
+                                {["삼성전자", "현대자동차", "NAVER", "카카오", "SK하이닉스"].map((keyword) => (
                                     <button
                                         key={keyword}
                                         onClick={() => handleSearch(keyword)}
