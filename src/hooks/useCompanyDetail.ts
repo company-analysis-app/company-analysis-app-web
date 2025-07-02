@@ -76,15 +76,12 @@ export function useCompanyDetail(
                         netIncome: vals['당기순이익'],
                     })
                 );
-                console.log("재무 데이터:", financialData);
 
                 // 4) 뉴스 카테고리별 전체 호출
                 const newsRes = await axios.get<Record<string, NewsItem[]>>(
                     `${API_BASE_URL}/naver/news/all?company=${encodeURIComponent(found.name)}`
                 );
                 const newsMap = newsRes.data;
-                console.log("뉴스 데이터:", newsMap);
-
 
 
                 // 5) AI 요약
