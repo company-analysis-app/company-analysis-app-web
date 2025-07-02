@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext"
 import { dummyCompanies, type Company } from "../data/companies"
 import SearchBar from "../components/SearchBar"
 import CompanyList from "../components/CompanyList"
+import axios from "axios"
 
 const CompanySearchPage: React.FC = () => {
     const { user } = useAuth()
@@ -22,15 +23,17 @@ const CompanySearchPage: React.FC = () => {
         setHasSearched(true)
 
         try {
-            // API 연동필요 - GET /company/search?name={query}
-            console.log("검색 쿼리:", query)
+            // 쿼리(키워드)를 통해서 해당 쿼리가 포함되는 모든 데이터 불러오기
+            const res = await axios.get(`http://127.0.0.1:8000/dartsSearch?keyword=${query}`)
+            const data = res.data;
 
-            // 더미 검색 로직 - 실제로는 백엔드 API 호출
-            const results = dummyCompanies.filter(
-                (company) =>
-                    company.name.toLowerCase().includes(query.toLowerCase()) ||
-                    company.category.toLowerCase().includes(query.toLowerCase()),
-            )
+            // 해당 데이터로 results 데이터 만들어서 searchResults 상태 변환
+            const results: Company[] = data.map((item: any) => ({
+                id: item.corp_code,
+                name: item.corp_name,
+                category: "더미데이터입니다",
+                summary: "더미데이터입니다",
+            }));
 
             setTimeout(() => {
                 setSearchResults(results)
