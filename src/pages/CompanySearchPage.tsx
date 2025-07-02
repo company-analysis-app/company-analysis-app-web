@@ -29,7 +29,7 @@ const CompanySearchPage: React.FC = () => {
 
             // 해당 데이터로 results 데이터 만들어서 searchResults 상태 변환
             const results: Company[] = data.map((item: any) => ({
-                id: item.corp_code,
+                id: Number(item.corp_code),
                 name: item.corp_name,
                 category: "더미데이터입니다",
                 summary: "더미데이터입니다",
