@@ -46,7 +46,7 @@ export function useCompanyDetail(
                 
                 const industry = info.induty_name;
                 const found: Company = {
-                    id: info.corp_code,
+                    id: Number(info.corp_code),
                     name: info.corp_name,
                     category: "더미데이터입니다",
                     summary: "더미데이터입니다",

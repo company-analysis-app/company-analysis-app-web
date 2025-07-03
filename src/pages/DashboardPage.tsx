@@ -8,12 +8,19 @@ import { type Company, recommendationData } from "../data/companies"
 import SearchBar from "../components/SearchBar"
 import CompanyList from "../components/CompanyList"
 import CompanySearchPage from "./CompanySearchPage"
+import axios from "axios"
+
+
+const API_BASE_URL = process.env.REACT_APP_DBAPI_URL || "http://localhost:8000";
+
 
 const DashboardPage: React.FC = () => {
     const { user } = useAuth()
     const navigate = useNavigate()
     const [recommendations, setRecommendations] = useState<Company[]>([])
-    // URL 검색 파라미터 훅
+    const [bestCompanies, setBestCompanies] = useState<Company[]>([])
+    const [isLoading, setIsLoading] = useState(false)
+     // URL 검색 파라미터 훅
     const [searchParams, setSearchParams] = useSearchParams()
     const rawQuery = searchParams.get("query") || ""
     // 인코딩된 query 디코딩
@@ -21,9 +28,31 @@ const DashboardPage: React.FC = () => {
     const isSearching = query.trim().length > 0
 
     useEffect(() => {
-        if (user && user.preferences.length > 0) {
-            generateRecommendations()
-        }
+        const fetchData = async () => {
+            if (user && user.preferences.length > 0) {
+                generateRecommendations()
+            }
+
+            try {
+                const res = await axios.get<any>(`${API_BASE_URL}/dartsSearch/bestCompanies`)
+                const results = res.data;
+
+                const companyData: Company[] = results
+                    .filter((item: any) => item.favorite_count > 0) 
+                    .map((item: any) => ({
+                        id: Number(item.corp_code),
+                        name: item.corp_name,
+                        category: "더미데이터입니다",
+                        summary: "더미데이터입니다",
+                        favoriteCount: item.favorite_count,
+                    }));
+                setBestCompanies(companyData);
+            } catch (error) {
+                console.error("인기 기업 가져오기 실패:", error);
+            }
+        };
+
+        fetchData();
     }, [user])
 
     const generateRecommendations = () => {
@@ -74,6 +103,7 @@ const DashboardPage: React.FC = () => {
                     <SearchBar defaultValue={query} onSearch={handleSearch} />
                 </div>
 
+
                 {/* 검색 모드 */}
                 {isSearching ? (
                     <CompanySearchPage
@@ -113,15 +143,12 @@ const DashboardPage: React.FC = () => {
 
                         {/* 인기 기업 섹션 */}
                         <div className="mt-16">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">인기 기업</h2>
-                            <CompanyList
-                                companies={[
-                                    { id: 1, name: "삼성전자", category: "반도체", summary: "글로벌 반도체 및 전자제품 제조업체" },
-                                    { id: 2, name: "현대자동차", category: "자동차", summary: "국내 최대 자동차 제조업체" },
-                                    { id: 3, name: "네이버", category: "AI", summary: "국내 대표 IT 플랫폼 기업" },
-                                ]}
-                                onCompanyClick={handleCompanyClick}
-                            />
+                          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">인기 기업</h2>
+                          <CompanyList
+                            companies={bestCompanies}
+                            onCompanyClick={handleCompanyClick}
+                            showFavoriteCount={true}
+                          />
                         </div>
                     </>
                 )}

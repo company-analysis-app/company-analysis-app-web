@@ -8,9 +8,15 @@ interface CompanyCardProps {
     company: Company
     onClick: (company: Company) => void
     showFavoriteButton?: boolean
+    showFavoriteCount?: boolean
 }
 
-const CompanyCard: React.FC<CompanyCardProps> = ({ company, onClick, showFavoriteButton = true }) => {
+const CompanyCard: React.FC<CompanyCardProps> = ({ 
+    company, 
+    onClick, 
+    showFavoriteButton = true,
+    showFavoriteCount = false,
+}) => {
     const { user, addToFavorites, removeFromFavorites } = useAuth()
     const isFavorite = user?.favorites.includes(company.id) || false
 
@@ -58,8 +64,15 @@ const CompanyCard: React.FC<CompanyCardProps> = ({ company, onClick, showFavorit
                 )}
             </div>
             <p className="text-gray-600 text-sm leading-relaxed">{company.summary}</p>
-            <div className="mt-4">
-                <button className="text-blue-500 hover:text-blue-700 text-sm font-medium">자세히 보기 →</button>
+            <div className="mt-4 flex justify-between items-center">
+                <button className="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                    자세히 보기 →
+                </button>
+                {showFavoriteCount && company.favoriteCount !== undefined && (
+                    <div className="text-sm text-gray-500">
+                        ❤️ {company.favoriteCount.toLocaleString()}명이 관심 있어요
+                    </div>
+                )}
             </div>
         </div>
     )
