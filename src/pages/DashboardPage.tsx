@@ -34,8 +34,9 @@ const DashboardPage: React.FC = () => {
             }
 
             try {
-                const res = await axios.get<any>(`${API_BASE_URL}/dartsSearch/bestCompanies`)
+                const res = await axios.post<any>(`${API_BASE_URL}/dartsSearch/bestCompanies`)
                 const results = res.data;
+                console.log("Bestcompany Raw Data: ", results)
 
                 const companyData: Company[] = results
                     .filter((item: any) => item.favorite_count > 0) 
@@ -43,9 +44,10 @@ const DashboardPage: React.FC = () => {
                         id: Number(item.corp_code),
                         name: item.corp_name,
                         category: "더미데이터입니다",
-                        summary: "더미데이터입니다",
+                        logo: item.logo,
                         favoriteCount: item.favorite_count,
                     }));
+                console.log("Bestcompany Map Data: ", results)
                 setBestCompanies(companyData);
             } catch (error) {
                 console.error("인기 기업 가져오기 실패:", error);
