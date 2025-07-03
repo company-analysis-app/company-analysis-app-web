@@ -1,5 +1,5 @@
 // src/components/CompanyDetail/CompanyInfo.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { CompanyDetail } from "../../data/companies";
 
 interface CompanyInfoProps {
@@ -7,7 +7,49 @@ interface CompanyInfoProps {
 }
 
 const CompanyInfo: React.FC<CompanyInfoProps> = ({ companyDetail }) => {
-    const { company, extraInfo } = companyDetail;
+    const { company, extraInfo, financialData } = companyDetail;
+    const [companyClassification, setCompanyClassification] = useState("")
+
+    useEffect(() => {
+        if (!financialData || financialData.length === 0) {
+            setCompanyClassification("데이터 없음");
+            return;
+        }
+
+        // 자산 유효 데이터
+        const assetData = financialData.filter(
+            (data) => typeof data.totalAssets === "number" && !isNaN(data.totalAssets)
+        );
+
+        // 매출 유효 데이터
+        const revenueData = financialData.filter(
+            (data) => typeof data.revenue === "number" && !isNaN(data.revenue)
+        );
+
+        // 자산 기준으로 대기업/중견 판단
+        const assetLatest = [...assetData].sort((a, b) => Number(b.year) - Number(a.year))[0];
+
+        // 매출 평균 계산 (최근 3년) -> 1500억원 이상이면 중견기업으로 분류
+        const revenueSorted = [...revenueData].sort((a, b) => Number(b.year) - Number(a.year));
+        const recent3Revenue = revenueSorted.slice(0, 3);
+        const avgRevenue = recent3Revenue.length > 0
+            ? recent3Revenue.reduce((sum, r) => sum + r.revenue, 0) / recent3Revenue.length
+            : null;
+
+        if (assetLatest && assetLatest.totalAssets >= 10_400_000_000_000) {
+            setCompanyClassification("대기업");
+        } else if (
+            (assetLatest && assetLatest.totalAssets >= 500_000_000_000) ||
+            (avgRevenue !== null && avgRevenue >= 150_000_000_000)
+        ) {
+            setCompanyClassification("중견기업");
+        } else if (assetLatest || avgRevenue !== null) {
+            setCompanyClassification("중소기업");
+        } else {
+            setCompanyClassification("데이터 없음");
+        }
+    }, [financialData]);
+    
 
     return (
         <div className="bg-white rounded-lg shadow-md p-8 mb-8">
@@ -22,10 +64,10 @@ const CompanyInfo: React.FC<CompanyInfoProps> = ({ companyDetail }) => {
                                     ? "코스닥 상장"
                                     : extraInfo.corpCls === "N"
                                         ? "코넥스 상장"
-                                        : "비상장"}
+                                        : "기타 상장"}
                         </span>
                         <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                            대기업
+                            {companyClassification}
                         </span>
                     </div>
                 </div>
