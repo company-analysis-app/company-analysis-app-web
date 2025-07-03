@@ -1,20 +1,33 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
 
-interface SearchBarProps {
+export interface SearchBarProps {
+  /** 검색 버튼 클릭 시 호출 */
   onSearch: (query: string) => void
+  /** 로딩 중일 때 버튼 비활성화 */
   isLoading?: boolean
+  /** input의 초기값 (optional) */
+  defaultValue?: string
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading = false }) => {
-  const [query, setQuery] = useState("")
+const SearchBar: React.FC<SearchBarProps> = ({
+  onSearch,
+  isLoading = false,
+  defaultValue = "",
+}) => {
+  const [query, setQuery] = useState<string>(defaultValue)
+
+  // defaultValue가 바뀌면 input도 동기화
+  useEffect(() => {
+    setQuery(defaultValue)
+  }, [defaultValue])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (query.trim()) {
-      onSearch(query.trim())
+    const trimmed = query.trim()
+    if (trimmed) {
+      onSearch(trimmed)
     }
   }
 
