@@ -41,10 +41,10 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
 
     return (
         <div
-            className="max-w-md sm:w-96 bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 w-full"
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 w-full h-full flex flex-col"
             onClick={() => onClick(company)}
         >
-            <div className="flex">
+            <div className="flex flex-1">
                 {/* 좌측 1/3: 로고 영역 */}
                 <div className="w-1/3 flex items-center justify-center">
                     <img
