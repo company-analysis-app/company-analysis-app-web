@@ -44,6 +44,7 @@ export async function addFavorite(
         { company_id: companyId },
         { headers: { Authorization: `Bearer ${token}` } }
     );
+    const com_favorite_count = await axios.post(`${API_URL}/darts/company/addfavorites/${companyId}`);
     return res.data;
 }
 
@@ -52,10 +53,12 @@ export async function removeFavorite(
     token: string,
     companyId: number,
 ): Promise<User> {
+    console.log(companyId)
     const res = await axios.delete<User>(
         `${API_URL}/users/favorites/${companyId}`,
         { headers: { Authorization: `Bearer ${token}` } }
     );
+    const com_favorite_count = await axios.post(`${API_URL}/darts/company/subfavorites/${companyId}`);
     return res.data;
 }
 

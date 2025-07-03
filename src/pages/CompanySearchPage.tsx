@@ -38,10 +38,12 @@ const CompanySearchPage: React.FC<Props> = ({ query, onCompanyClick }) => {
                 `${API_BASE_URL}/dartsSearch?keyword=${encodeURIComponent(keyword)}`
             )
             const data = res.data as any[]
+
             // console.log("검색결과 Data: ", data)
-            // API 스펙에 맞춰 필요한 필드 변환
-            const results: Company[] = data.map((item) => ({
-                id: item.corp_code,
+
+            // 해당 데이터로 results 데이터 만들어서 searchResults 상태 변환
+            const results: Company[] = data.map((item: any) => ({
+                id: Number(item.corp_code),
                 name: item.corp_name,
                 category: item.industry || "분류 없음",
                 summary: item.summary || "설명 없음",
@@ -136,7 +138,7 @@ const CompanySearchPage: React.FC<Props> = ({ query, onCompanyClick }) => {
                         <div className="bg-white rounded-lg shadow-md p-8">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">빠른 검색</h3>
                             <div className="flex flex-wrap gap-2">
-                                {["삼성전자", "현대자동차", "네이버", "카카오", "SK하이닉스"].map((keyword) => (
+                                {["삼성전자", "현대자동차", "NAVER", "카카오", "SK하이닉스"].map((keyword) => (
                                     <button
                                         key={keyword}
                                         onClick={() => handleSearch(keyword)}
