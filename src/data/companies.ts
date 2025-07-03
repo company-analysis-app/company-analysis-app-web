@@ -3,7 +3,7 @@ export interface Company {
     id: number;
     name: string;
     category: string;
-    summary: string;
+    summary?: string;
     logo?: string;
     favoriteCount?: number;
 }
