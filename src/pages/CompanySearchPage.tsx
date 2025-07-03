@@ -38,7 +38,7 @@ const CompanySearchPage: React.FC<Props> = ({ query, onCompanyClick }) => {
                 `${API_BASE_URL}/dartsSearch?keyword=${encodeURIComponent(keyword)}`
             )
             const data = res.data as any[]
-
+            // console.log("검색결과 Data: ", data)
             // API 스펙에 맞춰 필요한 필드 변환
             const results: Company[] = data.map((item) => ({
                 id: item.corp_code,
@@ -47,9 +47,20 @@ const CompanySearchPage: React.FC<Props> = ({ query, onCompanyClick }) => {
                 summary: item.summary || "설명 없음",
             }))
 
+            // 걸러낼 패턴 총정리
+            // 1) \d+호스팩      => “123호스팩” 등
+            // 2) 스팩\d+호      => “스팩123호” 등
+            // 3) 기업인수목적    => “기업인수목적”이 포함된 모든 이름
+            const filterPattern = /(?:\d+호스팩|스팩\d+호|기업인수목적)/i
+
+            // 패턴에 매칭되는 회사명은 걸러내기
+            const filteredResults = results.filter(
+                (company) => !filterPattern.test(company.name)
+            )
+
             // UX상 잠깐 로딩 스피너 보이기
             setTimeout(() => {
-                setSearchResults(results)
+                setSearchResults(filteredResults)
                 setIsLoading(false)
             }, 500)
         } catch (error) {
