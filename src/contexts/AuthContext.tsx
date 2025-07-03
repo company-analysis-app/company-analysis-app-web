@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import type { User } from "../data/users";
-import { fetchMe, updateUserPreferences, addFavorite, removeFavorite } from "../data/users";
+import { fetchMe, updateUserPreferences, addFavorite, removeFavorite, addIndustryFavorite, removeIndustryFavorite } from "../data/users";
 
 interface AuthContextType {
     user: User | null
@@ -13,6 +13,8 @@ interface AuthContextType {
     updatePreferences: (preferences: string[]) => void
     addToFavorites: (companyId: number) => void
     removeFromFavorites: (companyId: number) => void
+    addToIndustryFavorites: (industryId: number) => void
+    removeFromIndustryFavorites: (industryId: number) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -90,9 +92,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(updated);
     };
 
+    const addToIndustryFavorites = async (industryId: number) => {
+        if (!user) return;
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("로그인이 필요합니다");
+        const updated = await addIndustryFavorite(token, industryId);
+        setUser(updated);
+    };
+
+    const removeFromIndustryFavorites = async (industryId: number) => {
+        if (!user) return;
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("로그인이 필요합니다");
+        const updated = await removeIndustryFavorite(token, industryId);
+        setUser(updated);
+    };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, updatePreferences, addToFavorites, removeFromFavorites, loading }}>
+        <AuthContext.Provider value={{ 
+            user, 
+            login, 
+            logout, 
+            updatePreferences, 
+            addToFavorites, 
+            removeFromFavorites, 
+            addToIndustryFavorites,
+            removeFromIndustryFavorites,
+            loading 
+        }}>
             {children}
         </AuthContext.Provider>
     );

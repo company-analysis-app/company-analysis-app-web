@@ -4,10 +4,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import { categories } from "../data/users"
+import IndustrySelector from "../components/IndustrySelector"
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate()
-  const { user, updatePreferences, addToFavorites, removeFromFavorites } = useAuth();
+  const { user, updatePreferences } = useAuth();
   const [selectedCategories, setSelectedCategories] = useState<string[]>(user?.preferences || []);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -19,9 +20,12 @@ const ProfilePage: React.FC = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // 선호 카테고리 저장
       await updatePreferences(selectedCategories);
-      alert("선호 카테고리가 저장되었습니다!");
-    } catch {
+      
+      alert("설정이 저장되었습니다!");
+    } catch (error) {
+      console.error("저장 실패:", error);
       alert("저장에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsSaving(false);
@@ -104,6 +108,11 @@ const ProfilePage: React.FC = () => {
             )}
           </div>
 
+          {/* 관심산업군 선택 */}
+          <div className="mb-8">
+            <IndustrySelector />
+          </div>
+
           {/* 저장 버튼 */}
           <div className="flex justify-end">
             <button
@@ -128,3 +137,4 @@ const ProfilePage: React.FC = () => {
 }
 
 export default ProfilePage
+
