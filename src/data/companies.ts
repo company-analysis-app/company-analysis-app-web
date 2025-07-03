@@ -13,6 +13,7 @@ export interface FinancialData {
     revenue: number;
     operatingProfit: number;
     netIncome: number;
+    totalAssets: number;
 }
 
 export interface NewsItem {

@@ -76,6 +76,7 @@ export function useCompanyDetail(
                         revenue: vals['매출액'],
                         operatingProfit: vals['영업이익'],
                         netIncome: vals['당기순이익'],
+                        totalAssets: vals['자산총계'],
                     })
                 );
 
