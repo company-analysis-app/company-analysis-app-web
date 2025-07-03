@@ -95,7 +95,7 @@ export function useCompanyDetail(
                 });
                 const summaryReqBody = {
                     company_name: found.name,
-                    financial: financialData,
+                    financial: rawFin,
                     news: formattedNews
                 };
                 const aiSummaryRes = await axios.post<SummaryOut>(
