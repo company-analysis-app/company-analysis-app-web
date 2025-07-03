@@ -4,7 +4,6 @@
 import React, { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import { dummyCompanies, type Company } from "../data/companies"
-import SearchBar from "../components/SearchBar"
 import CompanyList from "../components/CompanyList"
 import axios from "axios"
 
@@ -34,7 +33,7 @@ const CompanySearchPage: React.FC<Props> = ({ query, onCompanyClick }) => {
         setHasSearched(true)
 
         try {
-            const res = await axios.get(
+            const res = await axios.post(
                 `${API_BASE_URL}/dartsSearch?keyword=${encodeURIComponent(keyword)}`
             )
             const data = res.data as any[]
@@ -46,7 +45,7 @@ const CompanySearchPage: React.FC<Props> = ({ query, onCompanyClick }) => {
                 id: Number(item.corp_code),
                 name: item.corp_name,
                 category: item.industry || "분류 없음",
-                summary: item.summary || "설명 없음",
+                logo: item.logo,
             }))
 
             // 걸러낼 패턴 총정리
@@ -59,6 +58,7 @@ const CompanySearchPage: React.FC<Props> = ({ query, onCompanyClick }) => {
             const filteredResults = results.filter(
                 (company) => !filterPattern.test(company.name)
             )
+            console.log("filteredResults: ", filteredResults)
 
             // UX상 잠깐 로딩 스피너 보이기
             setTimeout(() => {
