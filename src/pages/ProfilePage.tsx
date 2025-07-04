@@ -4,24 +4,37 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import { categories } from "../data/users"
+import IndustrySelector from "../components/IndustrySelector"
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate()
-  const { user, updatePreferences, addToFavorites, removeFromFavorites } = useAuth();
+  const { user, updatePreferences } = useAuth();
   const [selectedCategories, setSelectedCategories] = useState<string[]>(user?.preferences || []);
   const [isSaving, setIsSaving] = useState(false);
+  const [industryFavorites, setIndustryFavorites] = useState<string[]>(
+    user && Array.isArray(user.industryfavorites)
+      ? user.industryfavorites.map((v: any) => String(v))
+      : []
+  );
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories(prev => prev.includes(category)
       ? prev.filter(c => c !== category) : [...prev, category]);
   };
 
+  const handleIndustryFavoritesChange = (codes: string[]) => {
+    setIndustryFavorites(codes);
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // 선호 카테고리 저장
       await updatePreferences(selectedCategories);
-      alert("선호 카테고리가 저장되었습니다!");
-    } catch {
+      // 관심 산업군 저장
+      alert("설정이 저장되었습니다!");
+    } catch (error) {
+      console.error("저장 실패:", error);
       alert("저장에 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsSaving(false);
@@ -104,6 +117,14 @@ const ProfilePage: React.FC = () => {
             )}
           </div>
 
+          {/* 관심산업군 선택 */}
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">관심 회사 산업군</h2>
+            <p className="text-gray-600 mb-6">관심있는 산업군을 선택하면 그에 맞는 맞춤형 기업 추천을 받을 수 있습니다.</p>
+            
+            <IndustrySelector value={industryFavorites} onChange={handleIndustryFavoritesChange} />
+          </div>
+
           {/* 저장 버튼 */}
           <div className="flex justify-end">
             <button
@@ -128,3 +149,4 @@ const ProfilePage: React.FC = () => {
 }
 
 export default ProfilePage
+
