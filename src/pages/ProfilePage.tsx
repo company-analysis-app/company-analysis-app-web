@@ -119,6 +119,9 @@ const ProfilePage: React.FC = () => {
 
           {/* 관심산업군 선택 */}
           <div className="mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">관심 회사 산업군</h2>
+            <p className="text-gray-600 mb-6">관심있는 산업군을 선택하면 그에 맞는 맞춤형 기업 추천을 받을 수 있습니다.</p>
+            
             <IndustrySelector value={industryFavorites} onChange={handleIndustryFavoritesChange} />
           </div>
 
