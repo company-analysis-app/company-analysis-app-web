@@ -75,7 +75,7 @@ export async function removeFavorite(
 
 /** 산업군 목록 조회 */
 export async function fetchIndustries(): Promise<IndustryCategory[]> {
-    const res = await axios.get<IndustryCategory[]>(`${API_URL}/users/industries`);
+    const res = await axios.get<IndustryCategory[]>(`${API_URL}/industrySearch/industries`);
     return res.data;
 }
 
@@ -85,7 +85,7 @@ export async function addIndustryFavorite(
     industryId: number,
 ): Promise<User> {
     const res = await axios.post<User>(
-        `${API_URL}/users/industry-favorites`,
+        `${API_URL}/industrySearch/industry-favorites`,
         { industry_id: industryId },
         { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -98,7 +98,7 @@ export async function removeIndustryFavorite(
     industryId: number,
 ): Promise<User> {
     const res = await axios.delete<User>(
-        `${API_URL}/users/industry-favorites/${industryId}`,
+        `${API_URL}/industrySearch/industry-favorites/${industryId}`,
         { headers: { Authorization: `Bearer ${token}` } }
     );
     return res.data;

@@ -22,6 +22,7 @@ interface IndustryCategory {
 interface IndustrySelectorProps {
   value: string[];
   onChange: (codes: string[]) => void;
+  onNameChange?: (name: string | undefined, level: number | undefined) => void;
 }
 
 const LEVEL_KEYS = ['name_1', 'name_2', 'name_3', 'name_4', 'name_5'];
@@ -33,8 +34,7 @@ const clearBelow = (prev: Record<string, string | undefined>, idx: number) => {
   return cleared;
 };
 
-export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onChange }) => {
-  const { user } = useAuth();
+export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onChange, onNameChange }) => {
   const [industries, setIndustries] = useState<IndustryCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Record<string, string | undefined>>({});
@@ -57,6 +57,19 @@ export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onCha
     () => LEVEL_KEYS.reduce((acc, key, idx) => (selected[key] ? idx : acc), -1),
     [selected]
   );
+
+  const lastSelectedName = useMemo(() => {
+    if (lastSelectedIdx < 0) return undefined;
+    const key = LEVEL_KEYS[lastSelectedIdx]; // name_1 ~ name_5
+    return selected[key];
+  }, [lastSelectedIdx, selected]);
+
+  useEffect(() => {
+    if (onNameChange) {
+      onNameChange(lastSelectedName, lastSelectedIdx >= 0 ? lastSelectedIdx : undefined);
+    }
+  }, [lastSelectedName, lastSelectedIdx, onNameChange]);
+
 
   // codeField 안전성 개선: lastSelectedIdx가 -1일 경우 대비
   const codeField = lastSelectedIdx >= 0 ? CODE_KEYS[lastSelectedIdx] : undefined;
