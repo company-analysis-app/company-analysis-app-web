@@ -44,7 +44,7 @@ const CompanySearchPage: React.FC<Props> = ({ query, onCompanyClick }) => {
             const results: Company[] = data.map((item: any) => ({
                 id: Number(item.corp_code),
                 name: item.corp_name,
-                category: item.industry || "분류 없음",
+                category: item.category,
                 logo: item.logo,
             }))
 
