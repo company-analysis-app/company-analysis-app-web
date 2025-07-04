@@ -10,11 +10,9 @@ interface AuthContextType {
     loading: boolean
     login: (provider: "google" | "kakao") => Promise<void>
     logout: () => void
-    updatePreferences: (preferences: string[]) => void
+    updatePreferences: (preferences: string[], industryFavorites?: string[]) => void
     addToFavorites: (companyId: number) => void
     removeFromFavorites: (companyId: number) => void
-    addToIndustryFavorites: (industryId: number) => void
-    removeFromIndustryFavorites: (industryId: number) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,10 +67,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         navigate("/login", { replace: true });
     };
 
-    const updatePreferences = async (prefs: string[]) => {
+    const updatePreferences = async (prefs: string[], industryFavorites?: string[]) => {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("로그인이 필요합니다");
-        const updated = await updateUserPreferences(token, prefs);
+        // Call a new API or updateUserPreferences to save both preferences and industryFavorites
+        const updated = await updateUserPreferences(token, prefs, industryFavorites);
         setUser(updated);
     };
 
@@ -92,22 +91,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(updated);
     };
 
-    const addToIndustryFavorites = async (industryId: number) => {
-        if (!user) return;
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("로그인이 필요합니다");
-        const updated = await addIndustryFavorite(token, industryId);
-        setUser(updated);
-    };
-
-    const removeFromIndustryFavorites = async (industryId: number) => {
-        if (!user) return;
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("로그인이 필요합니다");
-        const updated = await removeIndustryFavorite(token, industryId);
-        setUser(updated);
-    };
-
     return (
         <AuthContext.Provider value={{ 
             user, 
@@ -116,8 +99,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             updatePreferences, 
             addToFavorites, 
             removeFromFavorites, 
-            addToIndustryFavorites,
-            removeFromIndustryFavorites,
             loading 
         }}>
             {children}

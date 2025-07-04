@@ -36,10 +36,13 @@ export async function fetchMe(token: string): Promise<User> {
 export async function updateUserPreferences(
     token: string,
     preferences: string[],
+    industryFavorites?: string[],
 ): Promise<User> {
+    const body: any = { preferences };
+    if (industryFavorites) body.industryFavorites = industryFavorites;
     const res = await axios.put<User>(
         `${API_URL}/users/preferences`,
-        { preferences },
+        body,
         { headers: { Authorization: `Bearer ${token}` } }
     );
     return res.data;
@@ -102,6 +105,12 @@ export async function removeIndustryFavorite(
         { headers: { Authorization: `Bearer ${token}` } }
     );
     return res.data;
+}
+
+/** 관심 산업군 일괄 업데이트 (code 값으로) */
+export async function updateIndustryFavorites(codes: string[]) {
+  const res = await axios.post("/industry-favorites", { codes });
+  return res.data; // 관심 산업군 코드 배열
 }
 
 export const categories = ["대기업", "중견기업", "공기업", "외국계", "자동차", "반도체", "AI", "바이오", "금융", "화학"]

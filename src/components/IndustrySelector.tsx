@@ -38,6 +38,13 @@ export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onCha
   const [industries, setIndustries] = useState<IndustryCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Record<string, string | undefined>>({});
+  const [industryFavorites, setIndustryFavorites] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (user && Array.isArray(user.industryfavorites)) {
+      setIndustryFavorites(user.industryfavorites.map((v: any) => String(v)));
+    }
+  }, [user]);
 
   useEffect(() => {
     const loadIndustries = async () => {
@@ -75,7 +82,7 @@ export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onCha
   const codeField = lastSelectedIdx >= 0 ? CODE_KEYS[lastSelectedIdx] : undefined;
 
   const canAdd = useMemo(() => {
-    if (lastSelectedIdx < 0) return false;
+    if (lastSelectedIdx < 1) return false; // 최소 2단계(name_1, name_2)까지 선택해야 활성화
     const selectedIndustry = industries.find(item =>
       LEVEL_KEYS.slice(0, lastSelectedIdx + 1).every(key => item[key] === selected[key])
     );
@@ -89,14 +96,19 @@ export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onCha
     );
     if (selectedIndustry) {
       const codeToAdd = String(selectedIndustry[codeField]);
+      console.log('추가되는 코드:', codeToAdd);
       if (!value.includes(codeToAdd)) onChange([...value, codeToAdd]);
     }
   };
+  
 
   // 삭제 핸들러 추가
   const handleDelete = (codeToDelete: string) => {
     onChange(value.filter(code => code !== codeToDelete));
   };
+  console.log(value, industries) 
+
+
 
   const getOptions = (level: number): string[] => {
     let filtered = industries;
@@ -108,6 +120,9 @@ export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onCha
     const key = LEVEL_KEYS[level];
     return Array.from(new Set(filtered.map(item => item[key]).filter(Boolean) as string[]));
   };
+
+  // 선택된 경로 표시
+  const selectedNames = LEVEL_KEYS.map(key => selected[key]).filter(Boolean).join(' > ');
 
   if (loading || industries.length === 0) return <div>Loading...</div>;
 
@@ -141,27 +156,40 @@ export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onCha
         >
           추가
         </button>
-      </div>
+              </div>
 
-      <div className="mt-4 bg-blue-50 p-3 rounded-md">
+        {/* 선택 중인 산업군 pill */}
+        <div className="mb-4">
+          <span className="text-sm text-gray-700 font-medium">선택 중인 산업군: </span>
+          {selectedNames ? (
+            <span className="inline-block bg-blue-50 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold ml-2">{selectedNames}</span>
+          ) : (
+            <span className="text-gray-400 ml-2">아직 선택된 산업군이 없습니다.</span>
+          )}
+        </div>
+
+        <div className="mt-4 bg-blue-50 p-3 rounded-md">
         <span className="text-sm font-medium text-blue-800">선택된 산업군: </span>
         {value.length > 0 ? (
           value.map(code => {
-            // 명시적 매칭: industries 중 codeField 중 하나라도 정확히 일치하는 항목 찾기
             const industry = industries.find(ind =>
-              CODE_KEYS.some(key => ind[key] === code)
+              CODE_KEYS.some(key => String(ind[key]) === String(code))
             );
 
-            const path = [industry?.name_1, industry?.name_2, industry?.name_3, industry?.name_4, industry?.name_5]
-              .filter(Boolean)
-              .join(' > ');
+            const codeIdx = industry
+              ? CODE_KEYS.findIndex(key => String(industry[key]) === String(code))
+              : -1;
+
+            const path = (industry && codeIdx >= 0)
+              ? LEVEL_KEYS.slice(0, codeIdx + 1).map(key => industry[key]).filter(Boolean).join(' > ')
+              : `알 수 없는 코드(${code})`;
 
             return (
               <span
                 key={code}
                 className="text-sm text-blue-700 ml-1 flex items-center gap-1"
               >
-                {path || code}
+                {path}
                 <button
                   onClick={() => handleDelete(code)}
                   className="ml-2 text-red-500 hover:text-red-700 font-bold"
@@ -174,7 +202,7 @@ export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onCha
             );
           })
         ) : (
-          <span className="text-gray-500 ml-1">아직 저장된 산업군이 없습니다.</span>
+          <span className="text-gray-400">아직 선택된 산업군이 없습니다.</span>
         )}
       </div>
     </div>
