@@ -23,7 +23,7 @@ const DashboardPage: React.FC = () => {
   const isSearching = query.trim().length > 0
 
   const [currentPage, setCurrentPage] = useState(0)
-  const itemsPerPage = 3
+  const itemsPerPage = 6
 
   const paginatedRecommendations = recommendations.slice(
     currentPage * itemsPerPage,
@@ -75,13 +75,20 @@ const DashboardPage: React.FC = () => {
       )
       const results = resCom.data
 
+
       const recommended: Company[] = results.map((item: any) => ({
         id: Number(item.corp_code),
         name: item.corp_name,
         category: "더미데이터입니다",
         logo: item.logo,
       }))
-      setRecommendations(recommended)
+      const filterPattern = /(?:\d+호스팩|스팩\d+호|기업인수목적|기업구조)/i
+
+      // 패턴에 매칭되는 회사명은 걸러내기
+      const filteredResults = recommended.filter(
+      (company) => !filterPattern.test(company.name)
+      )
+      setRecommendations(filteredResults)
     } catch (error) {
       console.error("추천 기업 가져오기 실패:", error)
     }

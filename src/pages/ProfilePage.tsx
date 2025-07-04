@@ -3,13 +3,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
-import { categories } from "../data/users"
 import IndustrySelector from "../components/IndustrySelector"
+import axios from "axios"
+
+const API_BASE_URL = process.env.REACT_APP_DBAPI_URL || "http://localhost:8000";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate()
   const { user, updatePreferences } = useAuth();
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(user?.preferences || []);
   const [isSaving, setIsSaving] = useState(false);
   const [industryFavorites, setIndustryFavorites] = useState<string[]>(
     user && Array.isArray(user.industryfavorites)
@@ -17,9 +18,12 @@ const ProfilePage: React.FC = () => {
       : []
   );
 
-  const handleCategoryToggle = (category: string) => {
-    setSelectedCategories(prev => prev.includes(category)
-      ? prev.filter(c => c !== category) : [...prev, category]);
+  const [lastSelectedName, setLastSelectedName] = useState<string | undefined>(undefined);
+  const [lastSelectedLevel, setLastSelectedLevel] = useState<number | undefined>(undefined);
+
+  const handleNameChange = (name: string | undefined, level: number | undefined) => {
+    setLastSelectedName(name);
+    setLastSelectedLevel(level);
   };
 
   const handleIndustryFavoritesChange = (codes: string[]) => {
@@ -29,8 +33,15 @@ const ProfilePage: React.FC = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const res = await axios.get(`${API_BASE_URL}/industrySearch/getIndustry`, {
+        params: {
+          name: lastSelectedName,
+          level: lastSelectedLevel,
+        }
+      });
+      const industryCode = res.data;
       // 선호 카테고리 저장
-      await updatePreferences(selectedCategories);
+      await updatePreferences([industryCode.code]);
       // 관심 산업군 저장
       alert("설정이 저장되었습니다!");
     } catch (error) {
@@ -78,51 +89,12 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
 
-          {/* 선호 카테고리 설정 */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">관심 카테고리</h2>
-            <p className="text-gray-600 mb-6">관심있는 업종이나 기업 유형을 선택하면 맞춤형 추천을 받을 수 있습니다.</p>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => handleCategoryToggle(category)}
-                  className={`px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all ${selectedCategories.includes(category)
-                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                    : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
-                    }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-
-            {selectedCategories.length > 0 && (
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  <strong>선택된 카테고리:</strong> {selectedCategories.join(", ")}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* 관심기업 목록 */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">관심기업</h2>
-            {user.favorites.length > 0 ? (
-              <div className="text-gray-600">현재 {user.favorites.length}개의 기업을 관심기업으로 등록했습니다.</div>
-            ) : (
-              <div className="text-gray-500">아직 관심기업이 없습니다. 기업 검색 후 관심기업으로 추가해보세요.</div>
-            )}
-          </div>
-
           {/* 관심산업군 선택 */}
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">관심 회사 산업군</h2>
             <p className="text-gray-600 mb-6">관심있는 산업군을 선택하면 그에 맞는 맞춤형 기업 추천을 받을 수 있습니다.</p>
             
-            <IndustrySelector value={industryFavorites} onChange={handleIndustryFavoritesChange} />
+            <IndustrySelector value={industryFavorites} onChange={handleIndustryFavoritesChange} onNameChange={handleNameChange} />
           </div>
 
           {/* 저장 버튼 */}

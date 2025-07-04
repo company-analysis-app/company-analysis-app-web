@@ -52,7 +52,7 @@ const CompanySearchPage: React.FC<Props> = ({ query, onCompanyClick }) => {
             // 1) \d+호스팩      => “123호스팩” 등
             // 2) 스팩\d+호      => “스팩123호” 등
             // 3) 기업인수목적    => “기업인수목적”이 포함된 모든 이름
-            const filterPattern = /(?:\d+호스팩|스팩\d+호|기업인수목적)/i
+            const filterPattern = /(?:\d+호스팩|스팩\d+호|기업인수목적|기업구조)/i
 
             // 패턴에 매칭되는 회사명은 걸러내기
             const filteredResults = results.filter(
