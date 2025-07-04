@@ -16,11 +16,11 @@ const DashboardPage: React.FC = () => {
   const navigate = useNavigate()
   const [recommendations, setRecommendations] = useState<Company[]>([])
   const [bestCompanies, setBestCompanies] = useState<Company[]>([])
-  const [isLoading, setIsLoading] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const rawQuery = searchParams.get("query") || ""
   const query = decodeURIComponent(rawQuery)
   const isSearching = query.trim().length > 0
+  const [topNames, setTopNames] = useState("");
 
   const [currentPage, setCurrentPage] = useState(0)
   const itemsPerPage = 6
@@ -74,6 +74,29 @@ const DashboardPage: React.FC = () => {
         `${API_BASE_URL}/industrySearch/getData?industry_code=${industryCode}`
       )
       const results = resCom.data
+      const shortestCodeMap = new Map<string, string>();
+
+      results.forEach((item: any) => {
+        const code = String(item.induty_code);
+        let isChild = false;
+
+        for (const existing of Array.from(shortestCodeMap.keys())) {
+          if (code.startsWith(existing)) {
+            isChild = true; 
+            break;
+          }
+          if (existing.startsWith(code)) {
+            shortestCodeMap.delete(existing);
+          }
+        }
+
+        if (!isChild) {
+          shortestCodeMap.set(code, item.induty_name);
+        }
+      });
+
+      const finalName: string[] = Array.from(shortestCodeMap.values());
+      setTopNames(finalName[0])
 
 
       const recommended: Company[] = results.map((item: any) => ({
@@ -130,7 +153,11 @@ const DashboardPage: React.FC = () => {
               <div className="mb-12">
                 <div className="text-center mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">{user.name}님을 위한 추천 기업</h2>
-                  <p className="text-gray-600">선호 카테고리: {user.preferences.join(", ")}</p>
+                  <p className="text-gray-700 text-base mb-2">
+                    🎯 <span className="font-bold text-blue-700">선호 산업군:</span>
+                    <span className="ml-1 font-semibold text-blue-900">{topNames}</span>
+                    <span className="ml-2 text-sm text-gray-500">({user.preferences.join(", ")})</span>
+                  </p>
                 </div>
 
                 <CompanyList

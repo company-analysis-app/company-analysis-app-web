@@ -35,6 +35,7 @@ const clearBelow = (prev: Record<string, string | undefined>, idx: number) => {
 };
 
 export const IndustrySelector: React.FC<IndustrySelectorProps> = ({ value, onChange, onNameChange }) => {
+  const { user } = useAuth()
   const [industries, setIndustries] = useState<IndustryCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Record<string, string | undefined>>({});
