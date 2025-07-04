@@ -45,7 +45,7 @@ const DashboardPage: React.FC = () => {
           .map((item: any) => ({
             id: Number(item.corp_code),
             name: item.corp_name,
-            category: "더미데이터입니다",
+            category: item.category,
             logo: item.logo,
             favoriteCount: item.favorite_count,
           }))
@@ -102,7 +102,7 @@ const DashboardPage: React.FC = () => {
       const recommended: Company[] = results.map((item: any) => ({
         id: Number(item.corp_code),
         name: item.corp_name,
-        category: "더미데이터입니다",
+        category: item.induty_name,
         logo: item.logo,
       }))
       const filterPattern = /(?:\d+호스팩|스팩\d+호|기업인수목적|기업구조)/i
