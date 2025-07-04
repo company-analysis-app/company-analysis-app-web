@@ -3,13 +3,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
-import { categories, updateUserPreferences, updateIndustryFavorites } from "../data/users"
 import IndustrySelector from "../components/IndustrySelector"
+import axios from "axios"
+
+const API_BASE_URL = process.env.REACT_APP_DBAPI_URL || "http://localhost:8000";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate()
   const { user, updatePreferences } = useAuth();
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(user?.preferences || []);
   const [isSaving, setIsSaving] = useState(false);
   const [industryFavorites, setIndustryFavorites] = useState<string[]>(
     user && Array.isArray(user.industryfavorites)
@@ -17,9 +18,12 @@ const ProfilePage: React.FC = () => {
       : []
   );
 
-  const handleCategoryToggle = (category: string) => {
-    setSelectedCategories(prev => prev.includes(category)
-      ? prev.filter(c => c !== category) : [...prev, category]);
+  const [lastSelectedName, setLastSelectedName] = useState<string | undefined>(undefined);
+  const [lastSelectedLevel, setLastSelectedLevel] = useState<number | undefined>(undefined);
+
+  const handleNameChange = (name: string | undefined, level: number | undefined) => {
+    setLastSelectedName(name);
+    setLastSelectedLevel(level);
   };
 
   const handleIndustryFavoritesChange = (codes: string[]) => {
@@ -29,11 +33,16 @@ const ProfilePage: React.FC = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const res = await axios.get(`${API_BASE_URL}/industrySearch/getIndustry`, {
+        params: {
+          name: lastSelectedName,
+          level: lastSelectedLevel,
+        }
+      });
+      const industryCode = res.data;
       // 선호 카테고리 저장
-      await updatePreferences(selectedCategories);
-      // 관심 산업군 저장 (code 값으로 저장)
-      const updated = await updateIndustryFavorites(industryFavorites);
-      console.log("저장된 산업군:", updated);
+      await updatePreferences([industryCode.code]);
+      // 관심 산업군 저장
       alert("설정이 저장되었습니다!");
     } catch (error) {
       console.error("저장 실패:", error);
@@ -85,7 +94,7 @@ const ProfilePage: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">관심 회사 산업군</h2>
             <p className="text-gray-600 mb-6">관심있는 산업군을 선택하면 그에 맞는 맞춤형 기업 추천을 받을 수 있습니다.</p>
             
-            <IndustrySelector value={industryFavorites} onChange={handleIndustryFavoritesChange} />
+            <IndustrySelector value={industryFavorites} onChange={handleIndustryFavoritesChange} onNameChange={handleNameChange} />
           </div>
 
           {/* 저장 버튼 */}

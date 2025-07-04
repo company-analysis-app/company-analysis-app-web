@@ -3,8 +3,9 @@ export interface Company {
     id: number;
     name: string;
     category: string;
-    summary: string;
+    summary?: string;
     logo?: string;
+    favoriteCount?: number;
 }
 
 export interface FinancialData {
@@ -12,6 +13,7 @@ export interface FinancialData {
     revenue: number;
     operatingProfit: number;
     netIncome: number;
+    totalAssets: number;
 }
 
 export interface NewsItem {

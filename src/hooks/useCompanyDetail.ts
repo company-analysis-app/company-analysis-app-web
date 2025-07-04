@@ -46,7 +46,7 @@ export function useCompanyDetail(
                 
                 const industry = info.induty_name;
                 const found: Company = {
-                    id: info.corp_code,
+                    id: Number(info.corp_code),
                     name: info.corp_name,
                     category: "더미데이터입니다",
                     summary: "더미데이터입니다",
@@ -76,6 +76,7 @@ export function useCompanyDetail(
                         revenue: vals['매출액'],
                         operatingProfit: vals['영업이익'],
                         netIncome: vals['당기순이익'],
+                        totalAssets: vals['자산총계'],
                     })
                 );
 
@@ -95,7 +96,7 @@ export function useCompanyDetail(
                 });
                 const summaryReqBody = {
                     company_name: found.name,
-                    financial: financialData,
+                    financial: rawFin,
                     news: formattedNews
                 };
                 const aiSummaryRes = await axios.post<SummaryOut>(

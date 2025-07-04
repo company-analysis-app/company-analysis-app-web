@@ -58,6 +58,7 @@ export async function addFavorite(
         { company_id: companyId },
         { headers: { Authorization: `Bearer ${token}` } }
     );
+    const com_favorite_count = await axios.post(`${API_URL}/darts/company/addfavorites/${companyId}`);
     return res.data;
 }
 
@@ -66,16 +67,18 @@ export async function removeFavorite(
     token: string,
     companyId: number,
 ): Promise<User> {
+    console.log(companyId)
     const res = await axios.delete<User>(
         `${API_URL}/users/favorites/${companyId}`,
         { headers: { Authorization: `Bearer ${token}` } }
     );
+    const com_favorite_count = await axios.post(`${API_URL}/darts/company/subfavorites/${companyId}`);
     return res.data;
 }
 
 /** 산업군 목록 조회 */
 export async function fetchIndustries(): Promise<IndustryCategory[]> {
-    const res = await axios.get<IndustryCategory[]>(`${API_URL}/users/industries`);
+    const res = await axios.get<IndustryCategory[]>(`${API_URL}/industrySearch/industries`);
     return res.data;
 }
 
@@ -85,7 +88,7 @@ export async function addIndustryFavorite(
     industryId: number,
 ): Promise<User> {
     const res = await axios.post<User>(
-        `${API_URL}/users/industry-favorites`,
+        `${API_URL}/industrySearch/industry-favorites`,
         { industry_id: industryId },
         { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -98,7 +101,7 @@ export async function removeIndustryFavorite(
     industryId: number,
 ): Promise<User> {
     const res = await axios.delete<User>(
-        `${API_URL}/users/industry-favorites/${industryId}`,
+        `${API_URL}/industrySearch/industry-favorites/${industryId}`,
         { headers: { Authorization: `Bearer ${token}` } }
     );
     return res.data;
